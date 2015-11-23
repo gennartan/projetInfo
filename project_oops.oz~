@@ -1,7 +1,7 @@
 declare ProjectLib in
-[ProjectLib] = {Link ['ProjectLib.ozf']}
+[ProjectLib] = {Link ['Documents/Etudes/Q3/Info2/projet/ProjectLib.ozf']}
 local
-   ListOfPersons = {ProjectLib.loadDatabase file "database.txt"}
+   ListOfPersons = {ProjectLib.loadDatabase file "Documents/Etudes/Q3/Info2/projet/database.txt"}
    fun {BuildDecisionTree DB}
       ListOfQuestions = ['A-t-il des cheveux longs ?'
 			'A-t-il des cheveux noirs ?'
@@ -11,32 +11,26 @@ local
 			'Est-il blanc de peau ?']
       fun {BuildDecisionTreeAcc DB Question}
 	 case Question of nil then
-	    local fun{NilAux DB Names}
-		     case DB of nil then leaf(Names)
-		     []H|T then {NilAux T H.1|Names}
-		     end
-		  end
-	    in
-	       {NilAux DB nil}
+	    local Name={NewCell nil} in
+	       for Person in DB do
+		  Name:=Person.1|@Name
+	       end
+	       leaf(@Name)
 	    end
 	 [] H|T then
-	    local
-	       fun{Aux DB ListTrue ListFalse ListUnknown ActualQuestion}
-		  case DB of nil then question(H true:{BuildDecisionTreeAcc {Append ListTrue ListUnknown} T} false:{BuildDecisionTreeAcc {Append ListFalse ListUnknown} T})
-		  []P1|P2 then
-		     local Reponse = P1.ActualQuestion in
-			if Reponse == true then
-			   {Aux P2 P1|ListTrue ListFalse ListUnknown ActualQuestion}
-			elseif Reponse == false then
-			   {Aux P2 ListTrue P1|ListFalse ListUnknown ActualQuestion}
-			else
-			   {Aux P2  ListTrue ListFalse P1|ListUnknown ActualQuestion}
-			end
+	    local ListTrue={NewCell nil} ListFalse={NewCell nil} ListUnknown={NewCell nil} ActualQuestion=H in
+	       for Person in DB do
+		  local Reponse=Person.ActualQuestion in
+		     if Reponse==true then
+			ListTrue:=Person|@ListTrue
+		     elseif Reponse==false then
+			ListFalse:=Person|@ListFalse
+		     else
+			ListUnknown:=Person|@ListUnknown
 		     end
 		  end
 	       end
-	    in
-	       {Aux DB nil nil nil H}
+	       question(H true:{BuildDecisionTreeAcc {Append @ListTrue @ListUnknown} T} false:{BuildDecisionTreeAcc {Append @ListFalse @ListUnknown} T})
 	    end
 	 end
       end
