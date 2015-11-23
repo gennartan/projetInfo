@@ -1,0 +1,34 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[francais]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage[left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+\author{Antoine Gennart}
+\title{Complexité temporelle}
+\begin{document}
+\maketitle
+
+\section{BuildDecisionTree}
+
+\subsection{Cas d'un arbre non optimal}
+La complexité temporelle de cet arbre est de $2^n$.
+
+\subsection{Cas d'un arbre optimal}
+pas encore fait donc je ne sais pas :p
+
+
+
+\section{GameDriver}
+\section{Cas basique}
+Le GameDriver basique ne donne que le choix true ou false. Il suffit donc de se ballader dans l'arbre en répondant à chaque fois true ou false. 
+La complexité temporelle de cet arbre (associé à l'arbre construit par le BuildDecisionTree non optimal) est donc : $\Theta(n)$
+
+Si il est associé à l'arbre construit pas le BuildDecisionTree optimal :
+$ O(n) = n $
+$ \Omega(n) = \text{plus petite branche de l'arbre} $
+\section{Cas Améliorer +++++}
+
+\end{document}
