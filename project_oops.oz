@@ -1,7 +1,7 @@
 declare ProjectLib in
-[ProjectLib] = {Link ['ProjectLib.ozf']}
+[ProjectLib] = {Link ['Etudes/Q3/Info2/projetInfo/ProjectLib.ozf']}
 local
-   ListOfPersons = {ProjectLib.loadDatabase file "database.txt"}
+   ListOfPersons = {ProjectLib.loadDatabase file "Etudes/Q3/Info2/projetInfo/database.txt"}
    fun {BuildDecisionTree DB}
       ListOfQuestions = ['A-t-il des cheveux longs ?'
 			'A-t-il des cheveux noirs ?'
