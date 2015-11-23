@@ -47,7 +47,9 @@ local
       Result
       fun {GameDriverAcc Tree OldTree ListOfQuestions OldListOfQuestions}
 	 case Tree of leaf(ListOfNames) then
-	    {ProjectLib.found ListOfNames}
+	    if ListOfNames == nil then {ProjectLib.found ['Non trouve, Replay']}
+	    else {ProjectLib.found ListOfNames}
+	    end 
 	 [] question(H true:T false:F) then
 	    local Reponse={ProjectLib.askQuestion ListOfQuestions.1} in
 	       if Reponse==unknown then {GameDriverAcc {AttaTree T F} Tree ListOfQuestions.2 ListOfQuestions} % UNKNOWN
