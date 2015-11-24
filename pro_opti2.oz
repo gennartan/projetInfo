@@ -43,6 +43,7 @@ local
 		     case DB of nil then {Abs Acc}
 		     [] Person|T andthen Person.Question==true then {DiffTrueFalseAcc T Question Acc+1}
 		     [] Person|T andthen Person.Question==false then {DiffTrueFalseAcc T Question Acc-1}
+		     else {DiffTrueFalseAcc DB.2 Question Acc}
 		     end
 		  end
 	       in % DiffTrueFalse
@@ -57,7 +58,10 @@ local
 	       end
 	    end %% DiffTrueFalseListAcc
 	 in % DiffTrueFalseList
-	    {DiffTrueFalseListAcc DB ListOfQuestions nil}
+	    local Var={DiffTrueFalseListAcc DB ListOfQuestions nil} in
+	       {Browse Var}
+	       Var
+	    end
 	 end %% DiffTrueFalseList
       in % BestQuestion
 	 % {RemoveList L Nth}                     ==> retire le Nth ieme element de la liste L et revoie la liste modifiee
@@ -65,7 +69,6 @@ local
 	 % {DiffTrueFasleList DB ListOfQuestions} ==> Retourne une liste contenant les differences des reponses true et false ...
 	 local Diff N Question in
 	    Diff = {DiffTrueFalseList DB ListOfQuestions}
-	    {Browse Diff}
 	    N = {MinList Diff}
 	    Question = {Nth ListOfQuestions N}
 	    NewListOfQuestions = {RemoveList ListOfQuestions N}
@@ -73,59 +76,63 @@ local
 	 end
       end %%% BestQuestion
       fun {BuildDecisionTreeAcc DB ListOfQuestions}
-	 NextListOfQuestions
-	 Question = {BestQuestion DB ListOfQuestions NextListOfQuestions}
-	 fun {MakeListOfNames DB}
-	    fun {MakeListOfNames DB Acc}
-	       case DB of nil then Acc
-	       [] Person|P2 then {MakeListOfNames P2 Person.1|Acc}
+	 fun {MakeListOfNames L}
+	    fun {MakeListAcc L Acc}
+	       case L of nil then Acc
+	       [] H|T then {MakeListAcc T H.1|Acc}
 	       end
 	    end
-	 in % MakeListOfNames
-	    {MakeListOfNames DB nil}
-	 end %% MakeListOfNames
-	 fun {Gardener DB ListTrue ListFalse ListUnknown Question}
-	    case DB of nil then
-	       local NewListTrue={Append ListTrue ListUnknown} NewListFalse={Append ListFalse ListUnknown} True False  A in
-		  if NewListTrue==nil then leaf({MakeListOfNames DB})
-		  elseif NewListFalse==nil then leaf({MakeListOfNames DB})
+	 in
+	    {MakeListAcc L nil}
+	 end
+	 fun {Gardener DB ListT ListF ActualQuestion ListOfQuestions} % Le gardener pose un arbre en demandant a sons assistant de mettre chaque branche #Flemmard
+	    if ListOfQuestions==nil then leaf({MakeListOfNames DB})
+	    else
+	       case DB of nil then
+		  if ListT==nil then leaf({MakeListOfNames ListF})
+		  elseif ListF==nil then leaf({MakeListOfNames ListT})
 		  else
-		     question(Question
-			      true:{BuildDecisionTreeAcc NewListTrue NextListOfQuestions}
-			      false:{BuildDecisionTreeAcc NewListFalse NextListOfQuestions})
+		     local NextListOfQuestions NextQuestion={BestQuestion DB ListOfQuestions NextListOfQuestions} in
+		     question(ActualQuestion
+				true:{Gardener ListT nil nil NextQuestion NextListOfQuestions}
+			      false:{Gardener ListF nil nil NextQuestion NextListOfQuestions})
+		     end
 		  end
-	       end
-	    [] P1|P2 then
-	       local Reponse = P1.Question in
-		  if Reponse==true then {Gardener P2 P1|ListTrue ListFalse ListUnknown Question}
-		  elseif Reponse==false then {Gardener P2 ListTrue P1|ListFalse ListUnknown Question}
-		  else {Gardener P2 ListTrue ListFalse P1|ListUnknown Question}
+	       [] Person|P2 then
+		  local Reponse=Person.ActualQuestion in
+		     if Reponse==true then {Gardener P2 Person|ListT ListF ActualQuestion ListOfQuestions} % True
+		     elseif Reponse==false then {Gardener P2 ListT Person|ListF ActualQuestion ListOfQuestions} % False
+		     else {Gardener P2 Person|ListT Person|ListF ActualQuestion ListOfQuestions} % Unknown
+		     end
 		  end
 	       end
 	    end
-	 end %%Aux
+	 end % Gardener
       in % BuildDecisionTreeAcc
-	 {Gardener DB nil nil nil Question}
-      end %% BuildDecisionTreeAcc
-   in
+	 {Gardener DB nil nil ListOfQuestions.1 ListOfQuestions.2}
+      end % BuildDecisionTreeAcc
+   in % BuildDecisionTree
       local Tree={BuildDecisionTreeAcc DB ListOfQuestions} in
 	 {Browse Tree}
 	 Tree
       end
-   end
+   end %%% BUILDECISIONTREE
    fun {GameDriver Tree}
       Result
-      fun {GameDriverAcc Tree OldTree ListOfQuestions OldListOfQuestions}
+      fun {GameDriverAcc Tree OldTree OldQuestion}
 	 case Tree of leaf(ListOfNames) then
 	    if ListOfNames==nil then {Browse 'Personne non trouvee'} {ProjectLib.found ['Pas donne : Replay']}
 	    else {ProjectLib.found ListOfNames}
 	    end
 	 [] question(H true:T false:F) then
-	    local Reponse={ProjectLib.askQuestion ListOfQuestions.1} in
-	       if Reponse==unknown then {GameDriverAcc {AttaTree T F} Tree ListOfQuestions.2 ListOfQuestions} % UNKNOWN
-	       elseif Reponse==true then {GameDriverAcc T Tree ListOfQuestions.2 ListOfQuestions} % VRAI
-	       elseif Reponse==false then {GameDriverAcc F Tree ListOfQuestions.2 ListOfQuestions} % FAUX
-	       else {GameDriverAcc OldTree Tree OldListOfQuestions ListOfQuestions} % OOPS
+	    local Reponse={ProjectLib.askQuestion H} in
+	       if Reponse==unknown then {GameDriverAcc {AttaTree T F} Tree H} % UNKNOWN
+	       elseif Reponse==true then {GameDriverAcc T Tree H} % VRAI
+	       elseif Reponse==false then {GameDriverAcc F Tree H} % FAUX
+	       else
+		  if OldQuestion==nil then {GameDriverAcc Tree OldTree H}
+		  else {GameDriverAcc OldTree Tree OldQuestion} % OOPS
+		  end
 	       end
 	    end
 	 end
@@ -158,7 +165,7 @@ local
 			'Voit-on ses dents ?'
 			'Est-il blanc de peau ?']
    in
-      Result = {GameDriverAcc Tree Tree ListOfQuestions ListOfQuestions}
+      Result = {GameDriverAcc Tree Tree nil}
       unit
    end
 in
