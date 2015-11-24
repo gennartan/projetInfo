@@ -3,8 +3,8 @@ declare ProjectLib in
 local
    ListOfPersons = {ProjectLib.loadDatabase file "Documents/Etudes/Q3/Info2/projetInfo/database.txt"}
    fun {BuildDecisionTree DB}
-      ListOfQuestions = ['A-t-il des cheveux longs ?'
-			'A-t-il des cheveux noirs ?'
+      ListOfQuestions = ['A-t-il des cheveux noirs ?'
+			 'A-t-il des cheveux longs ?'
 			'A-t-il une barbe ?'
 			'A-t-il une moustache ?'
 			'Voit-on ses dents ?'
@@ -65,6 +65,7 @@ local
 	 % {DiffTrueFasleList DB ListOfQuestions} ==> Retourne une liste contenant les differences des reponses true et false ...
 	 local Diff N Question in
 	    Diff = {DiffTrueFalseList DB ListOfQuestions}
+	    {Browse Diff}
 	    N = {MinList Diff}
 	    Question = {Nth ListOfQuestions N}
 	    NewListOfQuestions = {RemoveList ListOfQuestions N}
@@ -74,32 +75,43 @@ local
       fun {BuildDecisionTreeAcc DB ListOfQuestions}
 	 NextListOfQuestions
 	 Question = {BestQuestion DB ListOfQuestions NextListOfQuestions}
-	 fun {Aux DB ListTrue ListFalse ListUnknown Question}
+	 fun {MakeListOfNames DB}
+	    fun {MakeListOfNames DB Acc}
+	       case DB of nil then Acc
+	       [] Person|P2 then {MakeListOfNames P2 Person.1|Acc}
+	       end
+	    end
+	 in % MakeListOfNames
+	    {MakeListOfNames DB nil}
+	 end %% MakeListOfNames
+	 fun {Gardener DB ListTrue ListFalse ListUnknown Question}
 	    case DB of nil then
-	       local NewListTrue={Append ListTrue ListUnknown} NewListFalse={Append ListFalse ListUnknown} True False in
-		  if {Length NewListTrue}==1 then True=leaf([NewListTrue.1.1])
-		  else True = {BuildDecisionTreeAcc NewListTrue NextListOfQuestions}
+	       local NewListTrue={Append ListTrue ListUnknown} NewListFalse={Append ListFalse ListUnknown} True False  A in
+		  if NewListTrue==nil then leaf({MakeListOfNames DB})
+		  elseif NewListFalse==nil then leaf({MakeListOfNames DB})
+		  else
+		     question(Question
+			      true:{BuildDecisionTreeAcc NewListTrue NextListOfQuestions}
+			      false:{BuildDecisionTreeAcc NewListFalse NextListOfQuestions})
 		  end
-		  if {Length NewListFalse}==1 then False=leaf([NewListFalse.1.1])
-		     else False={BuildDecisionTree NewListFalse
-		  question(Question
-			   true:{BuildDecisionTreeAcc {Append ListTrue ListUnknown} NextListOfQuestions}
-			   false:{BuildDecisionTreeAcc {Append ListFalse ListUnknown} NextListOfQuestions})
 	       end
 	    [] P1|P2 then
 	       local Reponse = P1.Question in
-		  if Reponse==true then {Aux P2 P1|ListTrue ListFalse ListUnknown Question}
-		  elseif Reponse==false then {Aux P2 ListTrue P1|ListFalse ListUnknown Question}
-		  else {Aux P2 ListTrue ListFalse P1|ListUnknown Question}
+		  if Reponse==true then {Gardener P2 P1|ListTrue ListFalse ListUnknown Question}
+		  elseif Reponse==false then {Gardener P2 ListTrue P1|ListFalse ListUnknown Question}
+		  else {Gardener P2 ListTrue ListFalse P1|ListUnknown Question}
 		  end
 	       end
 	    end
 	 end %%Aux
       in % BuildDecisionTreeAcc
-	 {Aux DB
+	 {Gardener DB nil nil nil Question}
       end %% BuildDecisionTreeAcc
    in
-      {BuildDecisionTreeAcc DB ListOfQuestions}
+      local Tree={BuildDecisionTreeAcc DB ListOfQuestions} in
+	 {Browse Tree}
+	 Tree
+      end
    end
    fun {GameDriver Tree}
       Result
@@ -153,8 +165,9 @@ in
    {ProjectLib.play opts(builder:BuildDecisionTree
 			 persons:ListOfPersons
 			 driver:GameDriver
-			 allowUnknown:true
-			 oopsButton:true)}
+			 %allowUnknown:true
+			 %oopsButton:true
+			)}
 end
 
 {Browse 4}
