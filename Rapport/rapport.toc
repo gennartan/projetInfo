@@ -1,0 +1,4 @@
+\select@language {french}
+\contentsline {section}{\numberline {1}Description de l'algorithme}{1}
+\contentsline {subsection}{\numberline {1.1}BuildDecisionTree}{1}
+\contentsline {subsection}{\numberline {1.2}GameDriver}{1}

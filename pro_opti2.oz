@@ -1,4 +1,4 @@
-declare ProjectLib in
+local ProjectLib in
 [ProjectLib] = {Link ['Documents/Etudes/Q3/Info2/projetInfo/ProjectLib.ozf']}
 local
    ListOfPersons = {ProjectLib.loadDatabase file "Documents/Etudes/Q3/Info2/projetInfo/database.txt"}
@@ -61,7 +61,7 @@ local
 	    end %% DiffTrueFalseListAcc
 	 in % DiffTrueFalseList
 	    local Var={DiffTrueFalseListAcc DB ListOfQuestions nil} in
-	       {Browse Var}
+	       %{Browse Var}
 	       Var
 	    end
 	 end %% DiffTrueFalseList
@@ -112,32 +112,30 @@ local
 	 end % Gardener
       in % BuildDecisionTreeAcc
 	 local  RestOfListOfQuestions Question={BestQuestion DB ListOfQuestions RestOfListOfQuestions} in
-	    {Browse RestOfListOfQuestions}
 	    {Gardener DB nil nil Question RestOfListOfQuestions}
 	 end
       end % BuildDecisionTreeAcc
    in % BuildDecisionTree
       local Tree={BuildDecisionTreeAcc DB ListOfQuestions} in
-	 {Browse Tree}
-	 {Browse {DiffSizeTree Tree}}
+	 %{Browse Tree}
 	 Tree
       end
    end %%% BUILDECISIONTREE
    fun {GameDriver Tree}
       Result
-      fun {GameDriverAcc Tree OldTree OldQuestion}
+      fun {GameDriverAcc Tree HistoricTree}
 	 case Tree of leaf(ListOfNames) then
 	    if ListOfNames==nil then {Browse 'Personne non trouvee'} {ProjectLib.found ['Pas donne : Replay']}
 	    else {ProjectLib.found ListOfNames}
 	    end
 	 [] question(H true:T false:F) then
 	    local Reponse={ProjectLib.askQuestion H} in
-	       if Reponse==unknown then {GameDriverAcc {AttaTree T F} Tree H} % UNKNOWN
-	       elseif Reponse==true then {GameDriverAcc T Tree H} % VRAI
-	       elseif Reponse==false then {GameDriverAcc F Tree H} % FAUX
+	       if Reponse==unknown then {GameDriverAcc {AttaTree T F} Tree|HistoricTree} % UNKNOWN
+	       elseif Reponse==true then {GameDriverAcc T Tree|HistoricTree} % VRAI
+	       elseif Reponse==false then {GameDriverAcc F Tree|HistoricTree} % FAUX
 	       else
-		  if OldQuestion==nil then {GameDriverAcc Tree OldTree H}
-		  else {GameDriverAcc OldTree OldTree OldQuestion} % OOPS
+		  case HistoricTree of nil then {GameDriverAcc Tree HistoricTree}
+		  [] H|T then {GameDriverAcc H T} % OOPS
 		  end
 	       end
 	    end
@@ -164,14 +162,8 @@ local
 	    end
 	 end
       end
-      ListOfQuestions = ['A-t-il des cheveux longs ?'
-			'A-t-il des cheveux noirs ?'
-			'A-t-il une barbe ?'
-			'A-t-il une moustache ?'
-			'Voit-on ses dents ?'
-			'Est-il blanc de peau ?']
    in
-      Result = {GameDriverAcc Tree Tree nil}
+      Result = {GameDriverAcc Tree nil}
       unit
    end
 in
@@ -182,30 +174,4 @@ in
 			 oopsButton:true
 			)}
 end
-
-%% Pour verifier que notre arbre soit bien optimal ....
-declare
-fun {DiffSizeTree Tree} % Renvoie la difference de taille entre la plus petite et la plus grande branche de l'arbre
-   fun {BiggestBranch Tree}
-      case Tree of leaf(List) then 0
-      [] question(H true:T false:F) then
-	 local X=1+{BiggestBranch T} Y=1+{BiggestBranch F} in
-	    {Max X Y}
-	 end
-      end      
-   end
-   fun {SmallestBranch Tree}
-      case Tree of leaf(List) then 0
-      [] question(H true:T false:F) then
-	 local X=1+{SmallestBranch T} Y=1+{SmallestBranch F} in
-	    {Min X Y}
-	 end
-      end
-   end
-in
-   local X={BiggestBranch Tree} Y={SmallestBranch Tree} in
-      {Browse X}
-      {Browse Y}
-      X-Y
-   end
 end
