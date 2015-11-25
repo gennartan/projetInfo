@@ -87,17 +87,17 @@ local
 	 in
 	    {MakeListAcc L nil}
 	 end
-	 fun {Gardener DB ListT ListF ActualQuestion ListOfQuestions} % Le gardener pose un arbre en demandant a sons assistant de mettre chaque branche #Flemmard
+	 fun {Gardener DB ListT ListF ActualQuestion ListOfQuestions} % Le gardener plante l'arbre de decision
 	    if ListOfQuestions==nil then leaf({MakeListOfNames DB})
 	    else
 	       case DB of nil then
 		  if ListT==nil then leaf({MakeListOfNames ListF})
 		  elseif ListF==nil then leaf({MakeListOfNames ListT})
 		  else
-		     local NextListOfQuestionsT NextQuestionT={BestQuestion ListT ListOfQuestions NextListOfQuestionsT} NextListOfQuestionsF NextQuestionF={BestQuestion ListF ListOfQuestions NextListOfQuestionsF} in
+		     local NextLOfQuestionsT NextQuestionT={BestQuestion ListT ListOfQuestions NextLOfQuestionsT} NextLOfQuestionsF NextQuestionF={BestQuestion ListF ListOfQuestions NextLOfQuestionsF} in
 		     question(ActualQuestion
-				true:{Gardener ListT nil nil NextQuestionT NextListOfQuestionsT}
-			      false:{Gardener ListF nil nil NextQuestionF NextListOfQuestionsF})
+				true:{Gardener ListT nil nil NextQuestionT NextLOfQuestionsT}
+			      false:{Gardener ListF nil nil NextQuestionF NextLOfQuestionsF})
 		     end
 		  end
 	       [] Person|P2 then
@@ -119,6 +119,7 @@ local
    in % BuildDecisionTree
       local Tree={BuildDecisionTreeAcc DB ListOfQuestions} in
 	 {Browse Tree}
+	 {Browse {DiffSizeTree Tree}}
 	 Tree
       end
    end %%% BUILDECISIONTREE
@@ -136,7 +137,7 @@ local
 	       elseif Reponse==false then {GameDriverAcc F Tree H} % FAUX
 	       else
 		  if OldQuestion==nil then {GameDriverAcc Tree OldTree H}
-		  else {GameDriverAcc OldTree Tree OldQuestion} % OOPS
+		  else {GameDriverAcc OldTree OldTree OldQuestion} % OOPS
 		  end
 	       end
 	    end
@@ -158,7 +159,7 @@ local
 	       if H1==H2 then question(H1 true:{AttaTree T1 T2} false:{AttaTree F1 F2})
 	       else
 		  {Browse 'il y a une erreur, les questions ne sont pas les mêmes'}
-		  leaf()
+		  leaf(['Bonjour'])
 	       end
 	    end
 	 end
@@ -178,8 +179,33 @@ in
 			 persons:ListOfPersons
 			 driver:GameDriver
 			 %allowUnknown:true
-			 %oopsButton:true
+			 oopsButton:true
 			)}
 end
 
-{Browse 4}
+%% Pour verifier que notre arbre soit bien optimal ....
+declare
+fun {DiffSizeTree Tree} % Renvoie la difference de taille entre la plus petite et la plus grande branche de l'arbre
+   fun {BiggestBranch Tree}
+      case Tree of leaf(List) then 0
+      [] question(H true:T false:F) then
+	 local X=1+{BiggestBranch T} Y=1+{BiggestBranch F} in
+	    {Max X Y}
+	 end
+      end      
+   end
+   fun {SmallestBranch Tree}
+      case Tree of leaf(List) then 0
+      [] question(H true:T false:F) then
+	 local X=1+{SmallestBranch T} Y=1+{SmallestBranch F} in
+	    {Min X Y}
+	 end
+      end
+   end
+in
+   local X={BiggestBranch Tree} Y={SmallestBranch Tree} in
+      {Browse X}
+      {Browse Y}
+      X-Y
+   end
+end
