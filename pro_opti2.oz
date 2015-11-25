@@ -3,12 +3,14 @@ declare ProjectLib in
 local
    ListOfPersons = {ProjectLib.loadDatabase file "Documents/Etudes/Q3/Info2/projetInfo/database.txt"}
    fun {BuildDecisionTree DB}
-      ListOfQuestions = ['A-t-il des cheveux noirs ?'
+      ListOfQuestions = [
+			 'Est-il blanc de peau ?'
 			 'A-t-il des cheveux longs ?'
-			'A-t-il une barbe ?'
-			'A-t-il une moustache ?'
-			'Voit-on ses dents ?'
-			 'Est-il blanc de peau ?']
+			 'A-t-il une barbe ?'
+			 'A-t-il des cheveux noirs ?'
+			 'A-t-il une moustache ?'
+			 'Voit-on ses dents ?'
+			 ]
       fun {BestQuestion DB ListOfQuestions NewListOfQuestions} % Renvoie la meilleure question de la liste
 	 % ListOfQuestions est la liste des questions qui n'ont pas encore ete posees
 	 % DB est la liste des personnes restantes qui repondent aux criteres des questions/reponses precedentes
@@ -92,10 +94,10 @@ local
 		  if ListT==nil then leaf({MakeListOfNames ListF})
 		  elseif ListF==nil then leaf({MakeListOfNames ListT})
 		  else
-		     local NextListOfQuestions NextQuestion={BestQuestion DB ListOfQuestions NextListOfQuestions} in
+		     local NextListOfQuestionsT NextQuestionT={BestQuestion ListT ListOfQuestions NextListOfQuestionsT} NextListOfQuestionsF NextQuestionF={BestQuestion ListF ListOfQuestions NextListOfQuestionsF} in
 		     question(ActualQuestion
-				true:{Gardener ListT nil nil NextQuestion NextListOfQuestions}
-			      false:{Gardener ListF nil nil NextQuestion NextListOfQuestions})
+				true:{Gardener ListT nil nil NextQuestionT NextListOfQuestionsT}
+			      false:{Gardener ListF nil nil NextQuestionF NextListOfQuestionsF})
 		     end
 		  end
 	       [] Person|P2 then
@@ -109,7 +111,10 @@ local
 	    end
 	 end % Gardener
       in % BuildDecisionTreeAcc
-	 {Gardener DB nil nil ListOfQuestions.1 ListOfQuestions.2}
+	 local  RestOfListOfQuestions Question={BestQuestion DB ListOfQuestions RestOfListOfQuestions} in
+	    {Browse RestOfListOfQuestions}
+	    {Gardener DB nil nil Question RestOfListOfQuestions}
+	 end
       end % BuildDecisionTreeAcc
    in % BuildDecisionTree
       local Tree={BuildDecisionTreeAcc DB ListOfQuestions} in
