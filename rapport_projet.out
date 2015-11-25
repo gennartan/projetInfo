@@ -1,0 +1,8 @@
+\BOOKMARK [1][-]{section.1}{Construire un arbre de d\351cision \(BuildDecisionTree\)}{}% 1
+\BOOKMARK [1][-]{section.2}{GameDriver}{}% 2
+\BOOKMARK [1][-]{section.3}{Extensions}{}% 3
+\BOOKMARK [2][-]{subsection.3.1}{Incertitude dans la base de donn\351e}{section.3}% 4
+\BOOKMARK [2][-]{subsection.3.2}{Questions non binaires}{section.3}% 5
+\BOOKMARK [2][-]{subsection.3.3}{Incertitude du joueur \(true, false, I don't know}{section.3}% 6
+\BOOKMARK [2][-]{subsection.3.4}{G\351rer les erreurs du joueur}{section.3}% 7
+\BOOKMARK [2][-]{subsection.3.5}{Bouton "OUPS" \(revenir \340 la d\351cision pr\351c\351dente\)}{section.3}% 8

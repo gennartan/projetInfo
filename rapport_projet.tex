@@ -1,0 +1,111 @@
+\documentclass[12pt]{article}
+\usepackage[french]{babel}
+\usepackage[utf8x]{inputenc}
+\usepackage{amsmath, amsthm, amssymb, amsfonts}
+\usepackage{graphicx}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage{color}
+\usepackage{pifont}
+\usepackage{wrapfig}
+\usepackage[Glenn]{fncychap} %Conny, Glenn, Bjarne, Bjornstrup, Rejne, Lenny
+\frenchbsetup{StandardLists=true}
+\usepackage[a4paper,pdftex]{geometry}	% Use A4 paper margins
+\usepackage[french]{babel}
+\usepackage{multicol}
+\usepackage[version=3]{mhchem}
+\usepackage{hyperref} 
+\usepackage{tikz} 
+ 
+\definecolor{orange}{cmyk}{0,0.5,1,0}
+\definecolor{forestgreen}{rgb}{0.13,0.54,0.13}
+\definecolor{carmine}{rgb}{0.59, 0.0, 0.09}
+\definecolor{grey}{rgb}{0.5,0.5,0.5}
+\definecolor{blue}{rgb}{0.2, 0.2, 0.6}
+
+
+\begin{document}
+
+\begin{titlepage}
+
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+
+\center 
+
+\textsc{\LARGE Ecole Polytechnique de Louvain}\\[1cm]
+
+
+\HRule \\[0.4cm]
+{ \huge \bfseries Informatique II} 
+\HRule \\[1cm]
+
+\vspace{3cm}
+
+\fbox{
+\begin{minipage}{10cm}
+\begin{center}
+\vspace{0.5cm}
+\Huge{\textbf{Rapport de projet}}
+\vspace{0.5cm}
+\end{center}
+\end{minipage}}
+
+\vspace{4cm}
+
+\begin{minipage}{6cm}
+\begin{center}
+Antoine Gennart 
+\end{center}
+\end{minipage}
+\begin{center}
+Réalisé le \today.
+\end{center}
+
+\end{titlepage}
+
+Dans le cadre de ce projet, il nous a été demandé de réaliser un jeu "Qui oz-ce" du même style que le célèbre jeu "Qui est-ce" . Notre jeu part d'une base de données sur les différents membre de l'équipe des Diables Rouges de la coupe du monde 2014, contenant des questions et des réponses permettant de les identifier. \\
+
+Il nous a été demandé de réaliser avant tout une solution de base qui se diviserait en trois étapes.\\La première, \textbf{lire la base de donnée}, nous a été fournie. Les deux étapes qu'il nous restait à implémenter étaient \textbf{construire un arbre de décision pour guider la tache suivante} et \textbf{poser les questions au joueur humain pour trouver la personne choisie}.\\
+
+
+\section{Construire un arbre de décision (BuildDecisionTree)}
+
+Tout abord, nous avons implémenté la construction d'un arbre basique, qui prendrait en compte les questions dans leur ordre d'apparition. Cela nous a permis de comprendre la structure fondamentale que devait prendre cette fonction, et donc cet arbre.\\
+
+La fonction prend la \textbf{database} et une \textbf{liste de questions} en argument. Dans le cas simple, elle parcourt dans l'ordre la liste de questions. Pour chacune d'entre elles, elle parcourt toute la database et construit une \textbf{ListFalse}, contenant les noms des joueurs dont la réponse à la question actuelle est \textbf{false}, ainsi qu'une \textbf{ListTrue}, contenant les noms des joueurs dont la réponse à la question est \textbf{true}.\\
+La première question posée constitue le noeud principal à partir duquel l'arbre de décision va être construit.\\ Cet arbre sera ensuite construit par \textbf{appels récursifs} de la fonction\\ {\fontfamily{lmtt}\selectfont \{BuidDecisionTreeAcc ..\}} avec à chaque appel la question suivante. A \textbf{droite} de toute question (=noeud), la fonction sera appelée avec la \textbf{liste true} à la place de la \textbf{database}, alors qu'à \textbf{gauche} elle sera appelée avec la \textbf{liste false}.\\
+
+Une fois que toutes les questions ont été posées, c'est à dire que la \textbf{"question" est nil}, la fonction \textbf{renvoie une liste} contenant tous les joueurs encore présents dans la \textbf{database actuellement prise en compte} par celle-ci.\\
+
+
+ListOfQuestions = [Question1 Question2 Question3 ...]\\
+
+\begin{tikzpicture}
+\begin{scope}[xscale=2,yscale=1.5]
+% description et nommage des noeuds 
+\node (AA) at (0,6) [rectangle,draw] {\begin{tabular}{c}Question 1 \end{tabular} };
+\end{scope}
+
+\end{tikzpicture}
+
+  
+
+
+
+Nous devons implémenter deux fonctions principales : \textbf{BuildDecisionTree} qui va créer un arbre de décision le plus optimal possible pour que l'ordinateur pose le moins de questions possibles pour tomber sur la bonne personne. Et \textbf{GameDriver}, qui va, à partir de l'arbre créer par le BuildDecisionTree, décider des questions à poser, et s'il n'y a plus de questions a poser, proposer une solution.
+
+\section{GameDriver}
+
+\section{Extensions}
+
+\subsection{Incertitude dans la base de donnée}
+
+\subsection{Questions non binaires}
+
+\subsection{Incertitude du joueur (true, false, I don't know}
+
+\subsection{Gérer les erreurs du joueur}
+
+\subsection{Bouton "OUPS" (revenir à la décision précédente)}
+
+
+\end{document}
