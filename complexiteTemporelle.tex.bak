@@ -1,0 +1,50 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[francais]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage[left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+\author{Antoine Gennart}
+\title{Complexité temporelle}
+\begin{document}
+\maketitle
+
+\section{BuildDecisionTree}
+
+\subsection{Cas d'un arbre non optimal}
+L'arbre non-optimal lit une liste de question toujours dans le même ordre quel que soit la base de donnée, à chaque noeuds de l'arbre pose une question dont la réponse peut être soit \textit{true} soit \textit{false}. Il insère les feulles (\textit{leaf()}) seulement après avoir lu toutes les questions.
+
+La complexité temporelle de cet arbre est de $O(n) = 2^n$. Effectivement, il y a n questions binaire différentes, laissant à chaque noeuds deux choix.
+
+\subsection{Cas d'un arbre optimal}
+Dans la constructions de l'arbre optimal, on devrait être capable de lire les questions directement depuis la base de donnée (malheureusement je ne sais pas comment faire cela). Cela permettrait de nous fournir la liste des questions quelle que soit la base de donnée donnée.
+
+Pour la construction de cet arbre, nous allons créer une sous fonction qui va déterminer combien de \textit{person} vont répondre true à une question et combien vont répondre false. Au plus la différence en valeur absolue de ces deux valeurs est petite, au plus nous seront intéressé par poser la questions (de cette manière, quelque soit la question nous seront sur d'éliminer un maximum de candidats).
+
+Un problème se pose : Il faudrait réitérer l'opération de savoir quelle questions à la plus petite différence en valeur absolue de réponse true et false. Cela aurait pour conséquence qu'on ne posera pas les questions dans le même ordre pour ceux qui auraient répondu true à une question que pour ceux qui y aurait répondu false. Rien de bien grave me diriez vous, mais cela va accentuer la difficulté de la tâche de la gestion du bouton \textit{unknown}.
+
+Partons coder cet algorithme ....
+
+
+
+\section{GameDriver}
+\section{Cas basique}
+Le GameDriver basique ne donne que le choix true ou false. Il suffit donc de se ballader dans l'arbre en répondant à chaque fois true ou false. 
+La complexité temporelle de cet arbre (associé à l'arbre construit par le BuildDecisionTree non optimal) est donc : $\Theta(n)$
+
+Si il est associé à l'arbre construit par le BuildDecisionTree optimal :
+$ O(n) = n $
+$ \Omega(n) = \text{plus petite branche de l'arbre} $
+
+\section{Cas Améliorer +++++}
+La complexité de cette fonction augmente, car elle augmente le nombre de choix que l'utilisateurs peut faire, et ajoute un \textit{degré de liberté} au programme.
+
+\subsection{Le bouton OOPS}
+Ce bouton augmente la complexité temporelle de la fonction de 1, étant donné quelle est defini à un multiple près, ceci ne change rien à la complexité temporelle.
+
+\subsection{le bouton "Je ne sais pas"}
+Ce bouton augmente la complexité temporelle car il demande d'additionner les deux arbre
+
+\end{document}
