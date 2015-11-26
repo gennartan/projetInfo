@@ -15,6 +15,28 @@
 \usepackage[version=3]{mhchem}
 \usepackage{hyperref} 
 \usepackage{tikz} 
+\usepackage{xcolor}
+\usepackage{xcolor,rotating,epic,eepic}
+\usepackage{tikz-qtree}
+\usetikzlibrary{matrix}
+
+\usepackage{fancyhdr}
+\usepackage{xcolor,rotating,epic,eepic}
+\usetikzlibrary{%
+  arrows,%
+  calc,%
+  shapes.geometric,%
+  shapes.misc,%
+  shapes.symbols,%
+  shapes.arrows,%
+  automata,%
+  through,%
+  positioning,%
+  scopes,%
+  decorations.shapes,%
+  decorations.text,%
+  decorations.pathmorphing,%
+  shadows}
  
 \definecolor{orange}{cmyk}{0,0.5,1,0}
 \definecolor{forestgreen}{rgb}{0.13,0.54,0.13}
@@ -25,9 +47,11 @@
 
 \begin{document}
 
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+
 \begin{titlepage}
 
-\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+\renewcommand{\HRule}{\rule{\linewidth}{0.5mm}}
 
 \center 
 
@@ -71,23 +95,65 @@ Il nous a été demandé de réaliser avant tout une solution de base qui se div
 
 Tout abord, nous avons implémenté la construction d'un arbre basique, qui prendrait en compte les questions dans leur ordre d'apparition. Cela nous a permis de comprendre la structure fondamentale que devait prendre cette fonction, et donc cet arbre.\\
 
-La fonction prend la \textbf{database} et une \textbf{liste de questions} en argument. Dans le cas simple, elle parcourt dans l'ordre la liste de questions. Pour chacune d'entre elles, elle parcourt toute la database et construit une \textbf{ListFalse}, contenant les noms des joueurs dont la réponse à la question actuelle est \textbf{false}, ainsi qu'une \textbf{ListTrue}, contenant les noms des joueurs dont la réponse à la question est \textbf{true}.\\
-La première question posée constitue le noeud principal à partir duquel l'arbre de décision va être construit.\\ Cet arbre sera ensuite construit par \textbf{appels récursifs} de la fonction\\ {\fontfamily{lmtt}\selectfont \{BuidDecisionTreeAcc ..\}} avec à chaque appel la question suivante. A \textbf{droite} de toute question (=noeud), la fonction sera appelée avec la \textbf{liste true} à la place de la \textbf{database}, alors qu'à \textbf{gauche} elle sera appelée avec la \textbf{liste false}.\\
+La fonction prend la \textbf{database} en argument et une sous fonction crée immédiatement la liste des questions à poser selon leur apparition dans la base de données. Dans le cas simple, la liste des questions est crée dans l'ordre de d'apparition de celles-ci. Pour chacune d'entre elles, la fonction auxiliaire parcourt toute la database et construit une \textbf{ListFalse}, contenant les noms des joueurs dont la réponse à la question actuelle est \textbf{false}, ainsi qu'une \textbf{ListTrue}, contenant les noms des joueurs dont la réponse à la question est \textbf{true}.\\
+La première question posée constitue le noeud principal à partir duquel l'arbre de décision va être construit.\\ Cet arbre sera ensuite construit par \textbf{appels récursifs} de la fonction\\ {\fontfamily{lmtt}\selectfont \{BuidDecisionTreeAcc ..\}} avec, à chaque appel, la question suivante. A \textbf{droite} de toute question (=noeud), la fonction sera appelée avec la \textbf{liste true} à la place de la \textbf{database}, alors qu'à \textbf{gauche} elle sera appelée avec la \textbf{liste false}.\\
 
-Une fois que toutes les questions ont été posées, c'est à dire que la \textbf{"question" est nil}, la fonction \textbf{renvoie une liste} contenant tous les joueurs encore présents dans la \textbf{database actuellement prise en compte} par celle-ci.\\
+Une fois que toutes les questions ont été posées, c'est à dire que la \textbf{"question" est nil}, la fonction \textbf{renvoie une liste} contenant tous les joueurs encore présents dans la \textbf{database actuellement prise en compte} par celle-ci, à savoir une liste false ou true.\\
 
 
 ListOfQuestions = [Question1 Question2 Question3 ...]\\
 
-\begin{tikzpicture}
-\begin{scope}[xscale=2,yscale=1.5]
-% description et nommage des noeuds 
-\node (AA) at (0,6) [rectangle,draw] {\begin{tabular}{c}Question 1 \end{tabular} };
-\end{scope}
 
+
+\begin{figure}[h]
+   \centering
+\begin{tikzpicture}[>=stealth,sloped]
+
+    \matrix (tree) [%
+      matrix of nodes,
+      minimum size=0.25cm,
+      column sep=0.25cm,
+      row sep=1.5cm,
+    ]
+    {                                                                                                    
+                                                                                           
+          &   &   &\fbox{\begin{minipage}[t]{0.2\textwidth}\begin{center}Question 1\end{center} \end{minipage}}&   &   &  \\
+          
+        &  & \fbox{\begin{minipage}[t]{0.3\textwidth}\begin{center}ListTrue = [P1, P2,...]\end{center} \end{minipage}} 
+ &   & \fbox{\begin{minipage}[t]{0.3\textwidth}\begin{center}ListFalse = [P3, P4,...]\\\end{center} \end{minipage}} & &  \\
+ 
+  &  & \fbox{\begin{minipage}[t]{0.2\textwidth}\begin{center}Question2\end{center} \end{minipage}} &  
+ & \fbox{\begin{minipage}[t]{0.2\textwidth}\begin{center}Question2\end{center} \end{minipage}} & &\\};
+       \draw[->] (tree-1-4) -- (tree-2-3) node [midway,above]{}; %{$P$};
+    \draw[->] (tree-1-4) -- (tree-2-5) node [midway,above]{}; %{$(1-p)$};
+    
+    \draw[->] (tree-2-3) -- (tree-3-3) node [midway,below]{}; %{$(1-p)p$};
+    
+    \draw[->] (tree-2-5) -- (tree-3-5) node [midway,below]{}; %{$(1-p)^2$}; 
+    
 \end{tikzpicture}
+\caption{\textbf{\label {}Algorithme de la fonction de base}} 
+\end{figure}
 
-  
+Ensuite, nous avons implémenté différentes améliorations,... \\
+
+Il nous a ensuite été demandé de faire en sorte que notre arbre soit le plus optimal possible. Nous sommes partis sur le principe que l'optimisation de l'arbre se ferait par la maintenance de son équilibre.\\
+Nous avons donc implémenté une fonction {\fontfamily{lmtt}{\selectfont \{BestQuestion\}} qui prend en argument la base de données, la liste de question actuelle ainsi qu'une variable unbound, la nouvelle liste de question, qui sera modifée par la fonction. {\selectfont \{BestQuestion\}} renvoie la question qui engendrera la plus petite différence entre le nombre de personnes qui répondront true et celles qui répondront false, afin de maintenir l'arbre le plus équilibré possible.\\
+Nous avons également du prendre en compte le nombre de personnes possédant une réponse à la question, non pas pour l'équilibre de l'arbre, mais pour minimiser le nombre de questions à poser pour trouver la bonne personne. En effet, l'extension "unknown" fait en sorte que les personne dont la réponse n'est pas connue se retrouvent dans la liste true et dans la liste false. Nous sommes arrivés au critère de précision suivant : \\
+
+\begin{center}
+Abs((\# true)-(\# false)) - (\# réponses)
+\end{center}
+
+ 
+Cela se fait en plusieurs étapes :
+\begin{enumerate}
+\item Calcul du critère de précision pour chaque question de la liste. La fonction {\selectfont \{DiffTrueFalseList DB ListOfQuestions\}} parcourt la base de données pour chaque question présente dans la liste de question actuelle et renvoie une liste contenant la valeur critère de précision de chaque question, dans le même ordre que l'apparition des questions dans la liste.
+\item Trouver l'emplacement du plus petit élément de la liste des différences, au moyen de {\selectfont \{MinList L\}}
+\item Extraire ce $N^{ieme}$ élément de la liste de questions.
+C'est la question qui déséquilibrera le moins l'arbre, elle est renvoyée par la fonction {\selectfont \{Nth ListOfQuestion N\}} déjà présente dans Oz.
+\item Modifier la "nouvelle liste de question", la variable unbound entrée en argument. La fonction {\selectfont \{RemoveList L Nth \}} retire de la liste de question la "question optimale" qui sera renvoyée afin d'être posée.
+\end{enumerate}
 
 
 
