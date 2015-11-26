@@ -1,16 +1,36 @@
 local ProjectLib in
 [ProjectLib] = {Link ['Documents/Etudes/Q3/Info2/projetInfo/ProjectLib.ozf']}
 local
-   ListOfPersons = {ProjectLib.loadDatabase file "Documents/Etudes/Q3/Info2/projetInfo/database.txt"}
+   ListOfPersons = {ProjectLib.loadDatabase file "Documents/Etudes/Q3/Info2/projetInfo/database2.txt"}
    fun {BuildDecisionTree DB}
-      ListOfQuestions = [
-			 'Est-il blanc de peau ?'
-			 'A-t-il des cheveux longs ?'
-			 'A-t-il une barbe ?'
-			 'A-t-il des cheveux noirs ?'
-			 'A-t-il une moustache ?'
-			 'Voit-on ses dents ?'
-			 ]
+      fun {RemoveDouble List} % retire tous les doublet de la liste List
+	 fun {RemoveDoubleAcc L Acc}
+	    case L of nil then Acc
+	    [] H|T andthen {IsIn H T} then {RemoveDoubleAcc T Acc}
+	    else {RemoveDoubleAcc L.2 L.1|Acc}
+	    end
+	 end % RemoveDoubleAcc
+	 fun {IsIn X L} % renvoie true si X appartient a la liste L, false sinon
+	    case L of nil then false
+	    [] H|T andthen H==X then true
+	    else {IsIn X L.2}
+	    end
+	 end % IsIn
+      in % RemoveDouble
+	 {RemoveDoubleAcc List nil}
+      end %% RemoveDouble
+      fun {MakeListOfQuestions DB}
+	 fun {MakeListOfQuestionsAcc DB Acc}
+	    case DB of nil then Acc
+	    [] H|T then
+	       local ListOfQ={Arity H}.2 TempList={Append ListOfQ Acc} in
+		  {MakeListOfQuestionsAcc T {RemoveDouble TempList}}
+	       end
+	    end
+	 end %% MakeListOfQuestionsAcc
+      in % MakeListOfQuestions
+	 {MakeListOfQuestionsAcc DB nil}
+      end %% MakeListOfQuestions
       fun {BestQuestion DB ListOfQuestions NewListOfQuestions} % Renvoie la meilleure question de la liste
 	 % ListOfQuestions est la liste des questions qui n'ont pas encore ete posees
 	 % DB est la liste des personnes restantes qui repondent aux criteres des questions/reponses precedentes
@@ -41,15 +61,24 @@ local
 	    % ListOfQuestions possede toutes les questions auquelle les personnes savent repondre
 	    fun {DiffTrueFalseListAcc DB ListOfQuestions Acc}
 	       fun {DiffTrueFalse DB Question} % Renvoie la valeur absolue de la difference de reponses true et false a la questions Question par les personnes de la DB
-		  fun {DiffTrueFalseAcc DB Question Acc}
-		     case DB of nil then {Abs Acc}
-		     [] Person|T andthen Person.Question==true then {DiffTrueFalseAcc T Question Acc+1}
-		     [] Person|T andthen Person.Question==false then {DiffTrueFalseAcc T Question Acc-1}
-		     else {DiffTrueFalseAcc DB.2 Question Acc}
+		  fun {DiffTrueFalseAcc DB Question Acc NbreOfReponses}
+		     local Reponse in
+			case DB of nil then {Abs Acc}-NbreOfReponses
+			else
+			   try
+			      Reponse = (DB.1).Question
+			   catch X then
+			      Reponse = unknown
+			   end
+			   if Reponse==true then {DiffTrueFalseAcc DB.2 Question Acc+1 NbreOfReponses+1} % true
+			   elseif Reponse==false then {DiffTrueFalseAcc DB.2 Question Acc-1 NbreOfReponses+1} % false
+			   else {DiffTrueFalseAcc DB.2 Question Acc NbreOfReponses} % unknown
+			   end
+			end
 		     end
 		  end
 	       in % DiffTrueFalse
-		  {DiffTrueFalseAcc DB Question 0}
+		  {DiffTrueFalseAcc DB Question 0 0}
 	       end %% DiffTrueFalse
 	    in % DiffTrueFalseListAcc
 	       case ListOfQuestions of nil then {Reverse Acc}
@@ -93,18 +122,24 @@ local
 	       case DB of nil then
 		  if ListT==nil then leaf({MakeListOfNames ListF})
 		  elseif ListF==nil then leaf({MakeListOfNames ListT})
+		  elseif {And {Length ListT}==1 {And {Length ListF}==1 ListT==ListF}} then leaf({MakeListOfNames ListT})
 		  else
 		     local NextLOfQuestionsT NextQuestionT={BestQuestion ListT ListOfQuestions NextLOfQuestionsT} NextLOfQuestionsF NextQuestionF={BestQuestion ListF ListOfQuestions NextLOfQuestionsF} in
 		     question(ActualQuestion
-				true:{Gardener ListT nil nil NextQuestionT NextLOfQuestionsT}
+			      true:{Gardener ListT nil nil NextQuestionT NextLOfQuestionsT}
 			      false:{Gardener ListF nil nil NextQuestionF NextLOfQuestionsF})
 		     end
 		  end
 	       [] Person|P2 then
-		  local Reponse=Person.ActualQuestion in
+		  local Reponse in
+		     try
+			Reponse=Person.ActualQuestion
 		     if Reponse==true then {Gardener P2 Person|ListT ListF ActualQuestion ListOfQuestions} % True
-		     elseif Reponse==false then {Gardener P2 ListT Person|ListF ActualQuestion ListOfQuestions} % False
-		     else {Gardener P2 Person|ListT Person|ListF ActualQuestion ListOfQuestions} % Unknown
+		     else {Gardener P2 ListT Person|ListF ActualQuestion ListOfQuestions} % False
+		     end
+		     catch X
+		     then
+			Reponse=unknown {Gardener P2 Person|ListT Person|ListF ActualQuestion ListOfQuestions} % Unknown
 		     end
 		  end
 	       end
@@ -116,54 +151,37 @@ local
 	 end
       end % BuildDecisionTreeAcc
    in % BuildDecisionTree
-      local Tree={BuildDecisionTreeAcc DB ListOfQuestions} in
-	 %{Browse Tree}
+      local ListOfQuestions={MakeListOfQuestions DB} Tree={BuildDecisionTreeAcc DB ListOfQuestions} in
+	 {Browse ListOfQuestions}
+	 {Browse Tree}
 	 Tree
       end
    end %%% BUILDECISIONTREE
    fun {GameDriver Tree}
       Result
-      fun {GameDriverAcc Tree HistoricTree}
+      fun {NewDB Tree DB} % retire toutes les personnes de la DB qui ne sont pas dans l'arbre
+	 notimplemented
+      end
+      fun {GameDriverAcc Tree HistoricTree HistoricQuestion HistoricReponses}
 	 case Tree of leaf(ListOfNames) then
 	    if ListOfNames==nil then {Browse 'Personne non trouvee'} {ProjectLib.found ['Pas donne : Replay']}
 	    else {ProjectLib.found ListOfNames}
 	    end
 	 [] question(H true:T false:F) then
 	    local Reponse={ProjectLib.askQuestion H} in
-	       if Reponse==unknown then {GameDriverAcc {AttaTree T F} Tree|HistoricTree} % UNKNOWN
-	       elseif Reponse==true then {GameDriverAcc T Tree|HistoricTree} % VRAI
-	       elseif Reponse==false then {GameDriverAcc F Tree|HistoricTree} % FAUX
+	       %if Reponse==unknown then {GameDriverAcc {AttaTree T F} Tree|HistoricTree} % UNKNOWN
+	       if Reponse==true then {GameDriverAcc T Tree|HistoricTree H|HistoricQuestion true|HistoricReponses} % VRAI
+	       elseif Reponse==false then {GameDriverAcc F Tree|HistoricTree H|HistoricQuestion false|HistoricReponses} % FAUX
 	       else
-		  case HistoricTree of nil then {GameDriverAcc Tree HistoricTree}
-		  [] H|T then {GameDriverAcc H T} % OOPS
+		  case HistoricTree of nil then {GameDriverAcc Tree HistoricTree HistoricQuestion HistoricReponses}
+		  else {GameDriverAcc HistoricTree.1 HistoricTree.2 HistoricQuestion.2 HistoricReponses.2} % OOPS
 		  end
 	       end
 	    end
 	 end
       end
-      fun {AttaTree Tree1 Tree2}
-	 case Tree1 of leaf(ListOfNames1) then
-	    case Tree2 of leaf(ListOfNames2) then
-	       leaf({Append ListOfNames1 ListOfNames2})
-	    [] question(H3 true:T3 false:T4) then
-	       {Browse 'il y a une putaierreur'}
-	       leaf()
-	    end
-	 [] question(H1 true:T1 false:F1) then
-	    case Tree2 of leaf(ListOfNames) then
-	       {Browse 'il y a aussi une erreur bordel de merde'}
-	       leaf()
-	    [] question(H2 true:T2 false:F2) then
-	       if H1==H2 then question(H1 true:{AttaTree T1 T2} false:{AttaTree F1 F2})
-	       else
-		  {Browse 'il y a une erreur, les questions ne sont pas les mêmes'}
-		  leaf(['Bonjour'])
-	       end
-	    end
-	 end
-      end
    in
-      Result = {GameDriverAcc Tree nil}
+      Result = {GameDriverAcc Tree nil nil nil}
       unit
    end
 in
@@ -172,6 +190,7 @@ in
 			 driver:GameDriver
 			 %allowUnknown:true
 			 oopsButton:true
+			 %missingPlayer:true
 			)}
 end
 end
