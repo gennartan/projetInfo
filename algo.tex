@@ -1,0 +1,132 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[francais]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage[left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+\author{Antoine Gennart}
+\title{Eplication de l'algorithme}
+\begin{document}
+\maketitle
+
+Ce document est destiné à décrire tout l'algoritme du code du fichier code.oz. Il n'est pas destiné à un quelconque proffesseur, mais juste à éclaircir la compréhension du code et des environnements contextuels des différentes fonctions et sous fonctions.
+
+Pour rappel, l'objectif du code est de gérer un jeu de "Qui-est ce ?" dans le très répandu language informatique OZ
+
+\tableofcontents
+
+\section{BuildDecisionTreeWithQ}
+\paragraph{Description :} Crée un arbre de décision à partir de du base de donnée de personnes et d'une liste de personnes.
+
+\begin{itemize}
+\item Gardener
+\item BestQuestion
+\end{itemize}
+
+\subsection{MakeListOfNames}
+\paragraph{Description :} A partir d'une liste de person(NOM Q:true ..... false), crée une liste contenant uniquement les NOM.
+
+\begin{itemize}
+\item MakeListAcc
+\end{itemize}
+
+\subsection{Gardener}
+\paragraph{Description :} C'est réellement le jardinier du programme, c'est lui qui s'occupe de créer l'arbre de manière récursive.
+
+\begin{itemize}
+\item BestQuestion
+\item MakeListOfNames
+\end{itemize}
+
+\section{BestQuestion}
+\paragraph{Description :} Choisis dans une liste de questions laquelle conviendra le mieux pour éliminer le plus de personnes possible d'une certaine base de donnée.
+
+\begin{itemize}
+\item DiffTrueFalseList
+\item MinList
+\item RemoveList
+\end{itemize}
+
+\subsection{RemoveList}
+\paragraph{Description :} Retire le Nième élément d'une liste
+
+\begin{itemize}
+\item RemoveListAcc
+\end{itemize}
+
+\subsection{MinList}
+\paragraph{Description :} Retourne l'indice de l'emplacement du plus petit élément de la liste
+
+\begin{itemize}
+\item MinListACc
+\end{itemize}
+
+\subsection{DiffTrueFalseList}
+\paragraph{Description :} Crée une liste dont chaque élément est la valeur absolue de la différence des réponses true et false par les personnes à laquelle on soustrait le nombre de personne qui ont répondu a la question.
+
+\begin{itemize}
+\item DiffTrueFalseListAcc
+\end{itemize}
+
+\section{BuildDecisionTree}
+\paragraph{Description :} Crée un arbre de décision juste à partir de la base de donnée. C'est cette fonction que l'on doit donner  au player pour lancer l'interface graphique.
+
+\begin{itemize}
+\item MakeListOfQuestions
+\item BuildDecisionTreeWithQ
+\end{itemize}
+
+\subsection{MakeListOfQuestions}
+\paragraph{Description :} Fait une liste des questions a partir de toutes celle qui apparaisent dans une base de donnée.
+
+\begin{itemize}
+\item MakeListOfQuestionsAcc
+\item RemoveDouble
+\end{itemize}
+
+\section{RemoveDouble}
+\paragraph{Description :} Retire toutes les valeurs qui apparaissent deux fois dans une liste.
+
+\begin{itemize}
+\item RemoveDoubleAcc
+\item IsIn
+\end{itemize}
+
+\subsection{IsIn}
+\paragraph{Description :} Fonction Boolean qui regarde si un élément appartient à une liste
+
+\section{GameDriveer}
+\paragraph{Description :} Pilote du jeux qui va se ballader dans l'arbre pour poser les bonnes questions à l'utilisateur. Si l'utilisateur est con et qu'il ne sait pas, il doit recreer un arbre.
+
+\begin{itemize}
+\item GameDriverAcc
+\end{itemize}
+
+\subsection{NewDataBase}
+\paragraph{Description :} Met à jour la base de donnée en retirant les personnes qui n'ont pas la même réponses que celle décidée par l'utilisateur.
+
+\begin{itemize}
+\item NewDBAcc
+\end{itemize}
+
+\subsection{NewListOfQuestions}
+\paragraph{Description :} Retire la dernière questions posée de la liste des questions.
+
+\begin{itemize}
+\item RemoveList
+\end{itemize}
+
+\subsection{GameDriverAcc}
+\paragraph{Description :} Fonction récursive du GameDriver.
+
+\begin{itemize}
+\item NewListOfQuestions
+\item NewDataBase
+\item BuildDecisionTreeWithQ
+\item GameDriverAcc
+\end{itemize}
+
+
+\end{document}
