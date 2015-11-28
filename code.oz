@@ -1,7 +1,7 @@
 local ProjectLib in
-   [ProjectLib] = {Link ['Documents/Etudes/Q3/Info2/projetInfo/ProjectLib.ozf']}
+   [ProjectLib] = {Link ['ProjectLib.ozf']}
    local
-      ListOfPersons = {ProjectLib.loadDatabase file "Documents/Etudes/Q3/Info2/projetInfo/database2.txt"}
+      ListOfPersons = {ProjectLib.loadDatabase file "database.txt"}
       fun {BuildDecisionTreeWithQ DB ListOfQuestions}
 	 fun {MakeListOfNames L} % L est une liste de person(Name Q:true Q:false....), renvoie une liste contenant les Names
 	    fun {MakeListAcc L Acc}
@@ -122,19 +122,6 @@ local ProjectLib in
 	 end
       end %%% BestQuestion
       fun {BuildDecisionTree DB}
-	 fun {MakeListOfQuestions DB}
-	    fun {MakeListOfQuestionsAcc DB Acc}
-	       case DB of nil then Acc
-	       [] H|T then
-		  local ListOfQ={Arity H}.2 TempList={Append ListOfQ Acc} in
-		     {MakeListOfQuestionsAcc T {RemoveDouble TempList}}
-		  end
-	       end
-	    end %% MakeListOfQuestionsAcc
-	 in % MakeListOfQuestions
-	    {MakeListOfQuestionsAcc DB nil}
-	 end %% MakeListOfQuestions
-      in % BuildDecisionTree
 	 local ListOfQuestions={MakeListOfQuestions DB} Tree={BuildDecisionTreeWithQ DB ListOfQuestions} in
 	    {Browse ListOfQuestions}
 	    {Browse Tree}
@@ -142,23 +129,24 @@ local ProjectLib in
 	    Tree
 	 end
       end %%% BUILDECISIONTREE
-      fun {RemoveDouble List} % retire tous les doublet de la liste List
-	 fun {RemoveDoubleAcc L Acc}
-	    case L of nil then Acc
-	    [] H|T andthen {IsIn H T} then {RemoveDoubleAcc T Acc}
-	    else {RemoveDoubleAcc L.2 L.1|Acc}
-	    end
-	 end % RemoveDoubleAcc
-	 fun {IsIn X L} % renvoie true si X appartient a la liste L, false sinon
-	    case L of nil then false
-	    [] H|T andthen H==X then true
-	    else {IsIn X L.2}
-	    end
-	 end % IsIn
-      in % RemoveDouble
-	 {RemoveDoubleAcc List nil}
-      end %% RemoveDouble
+      
       fun {MakeListOfQuestions DB}
+	 fun {RemoveDouble List} % retire tous les doublet de la liste List
+	    fun {RemoveDoubleAcc L Acc}
+	       case L of nil then Acc
+	       [] H|T andthen {IsIn H T} then {RemoveDoubleAcc T Acc}
+	       else {RemoveDoubleAcc L.2 L.1|Acc}
+	       end
+	    end % RemoveDoubleAcc
+	    fun {IsIn X L} % renvoie true si X appartient a la liste L, false sinon
+	       case L of nil then false
+	       [] H|T andthen H==X then true
+	       else {IsIn X L.2}
+	       end
+	    end % IsIn
+	 in % RemoveDouble
+	    {RemoveDoubleAcc List nil}
+	 end %% RemoveDouble
 	 fun {MakeListOfQuestionsAcc DB Acc}
 	    case DB of nil then Acc
 	    [] H|T then
@@ -230,11 +218,11 @@ local ProjectLib in
 		  end
 	       end
 	    end
-	 end
-      in
+	 end %% GameDriverAcc
+      in % GAmeDriver
 	 Result = {GameDriverAcc Tree nil nil [ListOfQuestions] [ListOfPersons]}
 	 unit
-      end
+      end %% GameDriver
    in
       {ProjectLib.play opts(builder:BuildDecisionTree
 			    persons:ListOfPersons
