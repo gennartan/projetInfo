@@ -6,8 +6,8 @@
 \usepackage{amsfonts}
 \usepackage{amssymb}
 \usepackage[left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
-\author{Antoine Gennart}
-\title{Eplication de l'algorithme}
+\author{Antoine Gennart \& Marie-Pierre van Oldeneel}
+\title{Explication de l'algorithme}
 \begin{document}
 \maketitle
 
@@ -16,6 +16,7 @@ Ce document est destiné à décrire tout l'algoritme du code du fichier code.oz
 Pour rappel, l'objectif du code est de gérer un jeu de "Qui-est ce ?" dans le très répandu language informatique OZ
 
 \tableofcontents
+\newpage
 
 \section{BuildDecisionTreeWithQ}
 \paragraph{Description :} Crée un arbre de décision à partir de du base de donnée de personnes et d'une liste de personnes.
@@ -25,14 +26,16 @@ Pour rappel, l'objectif du code est de gérer un jeu de "Qui-est ce ?" dans le t
 \item BestQuestion
 \end{itemize}
 
-\subsection{MakeListOfNames}
+\subsection{MakeListOfNames L}
 \paragraph{Description :} A partir d'une liste de person(NOM Q:true ..... false), crée une liste contenant uniquement les NOM.
 
 \begin{itemize}
 \item MakeListAcc
 \end{itemize}
 
-\subsection{Gardener}
+Complexité temporelle : $O(n)$ avec n la taille de liste L.
+
+\subsection{Gardener DB ListT ListF ActualQuestion ListOfQuestions}
 \paragraph{Description :} C'est réellement le jardinier du programme, c'est lui qui s'occupe de créer l'arbre de manière récursive.
 
 \begin{itemize}
@@ -40,7 +43,13 @@ Pour rappel, l'objectif du code est de gérer un jeu de "Qui-est ce ?" dans le t
 \item MakeListOfNames
 \end{itemize}
 
-\section{BestQuestion}
+A chaque itération, Gardener se sépare en deux dimiuant toujours la taille de la DB.
+
+Complexité temporelle : La fonction se rappelle a chaque itération deux fois (typiquement $\Theta(n^2)$, avec n la taille de la liste de questions), en changeant ses argument avec l'aide de la fonction BestQuestion ($O(n_1 \dot n_2)$).
+
+On peut donc définir la complexité temporelle de cette fonction comme $\Theta(n_1 \cdot n_2^2)$ ou $n_2$ est la taille de la liste de question, $n_1$ la taille de la DB.
+
+\section{BestQuestion DB ListOfQuestions}
 \paragraph{Description :} Choisis dans une liste de questions laquelle conviendra le mieux pour éliminer le plus de personnes possible d'une certaine base de donnée.
 
 \begin{itemize}
@@ -49,26 +58,36 @@ Pour rappel, l'objectif du code est de gérer un jeu de "Qui-est ce ?" dans le t
 \item RemoveList
 \end{itemize}
 
-\subsection{RemoveList}
+Connaissant la complexitées temporelles des sous fonction, on peut calculer la complexité temporelle de BestQuestion qui appelle chacune des fonctions séparément.
+
+Complexité Temporelle : $O(n_1 \cdot n_2) + O(n_2) + O(n_2)$ ou $n_1$ est la taille de DB et $n_2$ la taille de ListOfQuestions
+
+\subsection{RemoveList L Nth}
 \paragraph{Description :} Retire le Nième élément d'une liste
 
 \begin{itemize}
 \item RemoveListAcc
 \end{itemize}
 
-\subsection{MinList}
+Complexité temporelle : $O(n)$ ou n est la longueur de la liste 
+
+\subsection{MinList L}
 \paragraph{Description :} Retourne l'indice de l'emplacement du plus petit élément de la liste
 
 \begin{itemize}
 \item MinListACc
 \end{itemize}
 
-\subsection{DiffTrueFalseList}
+Complexité temporelle : $O(n)$ ou n est la longueur de la liste L
+
+\subsection{DiffTrueFalseList DB ListOfQuestions}
 \paragraph{Description :} Crée une liste dont chaque élément est la valeur absolue de la différence des réponses true et false par les personnes à laquelle on soustrait le nombre de personne qui ont répondu a la question.
 
 \begin{itemize}
 \item DiffTrueFalseListAcc
 \end{itemize}
+
+Complexité temporelle : $O(n1 \cdot n2)$ ou n1 est la taille de la DB et n2 la taille de ListOfQuestions
 
 \section{BuildDecisionTree}
 \paragraph{Description :} Crée un arbre de décision juste à partir de la base de donnée. C'est cette fonction que l'on doit donner  au player pour lancer l'interface graphique.
@@ -78,7 +97,7 @@ Pour rappel, l'objectif du code est de gérer un jeu de "Qui-est ce ?" dans le t
 \item BuildDecisionTreeWithQ
 \end{itemize}
 
-\subsection{MakeListOfQuestions}
+\section{MakeListOfQuestions DB}
 \paragraph{Description :} Fait une liste des questions a partir de toutes celle qui apparaisent dans une base de donnée.
 
 \begin{itemize}
@@ -86,7 +105,9 @@ Pour rappel, l'objectif du code est de gérer un jeu de "Qui-est ce ?" dans le t
 \item RemoveDouble
 \end{itemize}
 
-\section{RemoveDouble}
+Complexité temporelle : $\Theta(n_1 \cdot n_2)$ avec $n_1$ la taille de la base de donnee et $n_2$ le nombre total de questions (de tous les joueurs).
+
+\subsection{RemoveDouble List}
 \paragraph{Description :} Retire toutes les valeurs qui apparaissent deux fois dans une liste.
 
 \begin{itemize}
@@ -94,29 +115,37 @@ Pour rappel, l'objectif du code est de gérer un jeu de "Qui-est ce ?" dans le t
 \item IsIn
 \end{itemize}
 
-\subsection{IsIn}
+Complexité temporelle : $O(n)$ ou n est la taille de la List
+
+\subsection{IsIn X L}
 \paragraph{Description :} Fonction Boolean qui regarde si un élément appartient à une liste
 
-\section{GameDriveer}
+Complexité temporelle : $\Theta(n)$, $\Omega(1)$ ou n est la taille de la liste L
+
+\section{GameDriver}
 \paragraph{Description :} Pilote du jeux qui va se ballader dans l'arbre pour poser les bonnes questions à l'utilisateur. Si l'utilisateur est con et qu'il ne sait pas, il doit recreer un arbre.
 
 \begin{itemize}
 \item GameDriverAcc
 \end{itemize}
 
-\subsection{NewDataBase}
+\subsection{NewDataBase DB}
 \paragraph{Description :} Met à jour la base de donnée en retirant les personnes qui n'ont pas la même réponses que celle décidée par l'utilisateur.
 
 \begin{itemize}
 \item NewDBAcc
 \end{itemize}
 
-\subsection{NewListOfQuestions}
+Complexité temporelle : $O(n)$ ou $n$ est la taille de la DB
+
+\subsection{NewListOfQuestions ActualQ LQ}
 \paragraph{Description :} Retire la dernière questions posée de la liste des questions.
 
 \begin{itemize}
 \item RemoveList
 \end{itemize}
+
+Complexité temporelle : $O(n)$ ou $n$ est la taille de la liste de questions
 
 \subsection{GameDriverAcc}
 \paragraph{Description :} Fonction récursive du GameDriver.
@@ -128,5 +157,8 @@ Pour rappel, l'objectif du code est de gérer un jeu de "Qui-est ce ?" dans le t
 \item GameDriverAcc
 \end{itemize}
 
+Complexité temporelle : $\Theta(n_1 * O(BuildDecisoinTree))$
+
+Le pire cas est lorque l'utilisateur ne connait pas la réponse, il faut donc faire appel n fois à la fonction BuildDecisionTreeWithQ
 
 \end{document}
